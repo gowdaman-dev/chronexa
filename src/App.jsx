@@ -16,6 +16,7 @@ import Footer from "./components/Footer.jsx"
 import ProductDetail from "./components/ProductDetail.jsx"
 import Blogs from "./components/Blogs.jsx"
 import BlogPost from "./components/BlogPost.jsx"
+import BlogPrototype from "./prototypes/blog/BlogPrototype.jsx"
 import { products } from "./data.jsx"
 
 const PRODUCT_IDS = new Set(products.map((p) => p.id))
@@ -28,14 +29,15 @@ function getRoute() {
   const b = path.match(/^\/blog\/([a-z0-9-]+)/)
   if (b) return { name: "blog", id: b[1] }
   if (path === "/blog") return { name: "blogs" }
+  if (path === "/prototypes/blog") return { name: "prototype-blog" }
   return { name: "home" }
 }
 
-function Landing() {
+function Landing({ ready }) {
   return (
     <div id="top" className="relative min-h-screen bg-ink-950 text-fore">
       <main>
-        <Hero />
+        <Hero ready={ready} />
         <DataTicker />
         <Products />
         <Industries />
@@ -148,6 +150,8 @@ export default function App() {
     }
   }, [])
 
+  if (route.name === "prototype-blog") return <BlogPrototype />
+
   return (
     <SmoothScroll>
       {!loaded && <Preloader onDone={() => setLoaded(true)} />}
@@ -158,7 +162,7 @@ export default function App() {
       {route.name === "product" && <ProductPage id={route.id} />}
       {route.name === "blogs" && <BlogsPage />}
       {route.name === "blog" && <BlogPostPage id={route.id} />}
-      {route.name === "home" && <Landing />}
+      {route.name === "home" && <Landing ready={loaded} />}
     </SmoothScroll>
   )
 }

@@ -135,6 +135,7 @@ html.lenis body {
 /* redact sweep reveal (SignalIQ) */
 .redact {
   position: relative;
+  display: inline-block;
 }
 .redact::after {
   content: "";

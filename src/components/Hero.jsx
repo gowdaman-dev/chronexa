@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { products } from "../data.jsx"
@@ -13,47 +13,44 @@ const HUD = [
   { id: "project", label: "PROJECTS", value: "87%", unit: "ON-TRACK" },
 ]
 
-export default function Hero() {
+export default function Hero({ ready = true }) {
   const [active, setActive] = useState(0)
   const sectionRef = useRef(null)
+  const tlRef = useRef(null)
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".hero-zoom",
-        { yPercent: 112 },
-        {
-          yPercent: 0,
-          duration: 1.2,
-          stagger: 0.1,
-          ease: "expo.out",
-          delay: 0.05,
-          scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-        }
-      )
-      gsap.fromTo(
-        ".hero-fade",
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          stagger: 0.1,
-          ease: "power2.out",
-          delay: 0.45,
-          scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-        }
-      )
-      gsap.to(".redact-hero", {
-        className: "+=is-revealed",
-        duration: 0,
-        stagger: 0.22,
-        delay: 0.7,
-        scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-      })
+      gsap.set(".hero-zoom, .hero-fade", { willChange: "transform, opacity" })
+
+      tlRef.current = gsap.timeline({ defaults: { ease: "power4.out" }, paused: true })
+
+      tlRef.current
+        .fromTo(
+          ".hero-zoom",
+          { yPercent: 115 },
+          { yPercent: 0, duration: 1.15, stagger: 0.12 },
+          0.05
+        )
+        .fromTo(
+          ".hero-fade",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.75, stagger: 0.08 },
+          0.55
+        )
+        .add(() => {
+          document.querySelectorAll(".redact-hero").forEach((el, i) => {
+            gsap.delayedCall(i * 0.22, () => el.classList.add("is-revealed"))
+          })
+        }, 1.25)
     }, sectionRef)
     return () => ctx.revert()
   }, [])
+
+  useEffect(() => {
+    if (ready) {
+      tlRef.current?.play()
+    }
+  }, [ready])
 
   return (
     <section
@@ -70,22 +67,22 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      <div className="mx-auto grid w-full max-w-[1500px] flex-1 items-end gap-10 px-4 pb-8 pt-28 sm:px-10 lg:pt-24">
+      <div className="mx-auto grid w-full max-w-[1500px] flex-1 items-center gap-10 px-4 pb-8 pt-28 sm:px-10 lg:items-end lg:pt-24">
         {/* Headline block */}
         <div className="relative z-10">
           <p className="hero-fade label-brand mb-5">
             Chronexa · Workforce Management — UAE & KSA
           </p>
-          <h1 className="display-title text-[clamp(2.4rem,7vw,6.6rem)] text-cream text-fore">
-            <span className="block overflow-hidden">
+          <h1 className="display-title text-[clamp(2.4rem,7vw,6.6rem)] text-fore">
+            <span className="block overflow-hidden pb-1">
               <span className="hero-zoom block">You run 100%</span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="block overflow-hidden pb-1">
               <span className="hero-zoom block">
                 of your workforce on
               </span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="block overflow-hidden pb-1">
               <span className="hero-zoom block">
                 <span className="redact-hero redact">20% of your data.</span>
               </span>
